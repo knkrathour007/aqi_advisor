@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card quiz-card">
+  <h2>Quick Health Quiz — AQI-related risks</h2>
+  <p class="muted">Answer 6 quick questions. We'll show you possible issues and prevention tips.</p>
+
+  <div id="quizStep" class="quiz-step"></div>
+
+  <div class="quiz-actions">
+    <button id="prevBtn" class="small-btn" style="visibility:hidden">Previous</button>
+    <button id="nextBtn" class="small-btn">Next</button>
+  </div>
+
+  <div id="resultBox" class="result-box" style="display:none"></div>
+</div>
+
+<script>
+const questions = [
+  { q: "Do you experience frequent coughing or breathlessness?", opts: ["No","Sometimes","Often"], weight: [0,1,2] },
+  { q: "Do you have a diagnosed respiratory condition (asthma, COPD)?", opts: ["No","Yes"], weight: [0,2] },
+  { q: "Do you experience frequent headaches or eye irritation outdoors?", opts: ["No","Sometimes","Often"], weight: [0,1,2] },
+  { q: "Do your symptoms improve when you stay indoors or use an air purifier?", opts: ["No","Yes"], weight: [0,2] },
+  { q: "Do you or family members have frequent throat irritation or frequent colds?", opts: ["No","Sometimes","Often"], weight: [0,1,2] },
+  { q: "Do you spend significant time near busy roads, factories, or construction?", opts: ["No","Sometimes","Often"], weight: [0,1,2] }
+];
+
+let step = 0;
+const answers = new Array(questions.length).fill(null);
+
+function renderStep(){
+  const container = document.getElementById('quizStep');
+  const q = questions[step];
+  let html = `<h3>${step+1}. ${q.q}</h3><div class="opts">`;
+  q.opts.forEach((o,i)=>{
+    const id = `opt-${step}-${i}`;
+    html += `<label class="radio"><input type="radio" name="q${step}" id="${id}" value="${i}"> ${o}</label>`;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+
+  // restore selected
+  const sel = answers[step];
+  if (sel !== null) {
+    const el = document.getElementById(`opt-${step}-${sel}`);
+    if (el) el.checked = true;
+  }
+
+  document.getElementById('prevBtn').style.visibility = step>0 ? 'visible' : 'hidden';
+  document.getElementById('nextBtn').textContent = step === questions.length-1 ? 'Get Advice' : 'Next';
+}
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  const radios = document.getElementsByName(`q${step}`);
+  let chosen = null;
+  for (const r of radios) if (r.checked) chosen = Number(r.value);
+  if (chosen === null) return alert('Please select an option');
+  answers[step] = chosen;
+
+  if (step < questions.length -1) {
+    step++;
+    renderStep();
+  } else {
+    // compute result and show advice
+    computeAdvice();
+  }
+});
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if (step > 0) { step--; renderStep(); }
+});
+
+function computeAdvice(){
+  // compute a simple risk score using weights
+  let score = 0;
+  for (let i=0;i<questions.length;i++){
+    const a = answers[i];
+    if (a === null) continue;
+    const w = questions[i].weight[a] || 0;
+    score += w;
+  }
+
+  const box = document.getElementById('resultBox');
+  box.style.display = 'block';
+  box.innerHTML = '';
+
+  let issue = "Low risk";
+  let measures = [
+    "Monitor local AQI regularly.",
+    "Consider masks outdoors when AQI is high.",
+    "Keep windows closed on very poor days.",
+    "Use an indoor air purifier if possible."
+  ];
+
+  if (score >= 6 && score <= 9) {
+    issue = "Moderate risk — some symptoms likely";
+    measures.unshift("Avoid long outdoor exercise on bad AQI days.");
+  } else if (score >= 10) {
+    issue = "High risk — consider medical advice";
+    measures.unshift("Talk to a healthcare professional about respiratory protection and treatment.");
+    measures.unshift("Limit outdoor exposure and avoid heavy traffic areas.");
+  }
+
+  box.innerHTML = `
+    <div class="result-title">Issue: <strong>${issue}</strong></div>
+    <div class="result-section"><h4>Preventive measures</h4>
+      <ul>${measures.map(m=>`<li>${m}</li>`).join('')}</ul>
+    </div>
+    <div class="result-section"><h4>Healthy practices</h4>
+      <ul>
+        <li>Stay hydrated, balanced diet, avoid smoking/exposure.</li>
+        <li>Regular checkups if you have asthma/COPD.</li>
+        <li>Use N95/KN95 on days with unhealthy AQI.</li>
+      </ul>
+    </div>
+  `;
+
+  // scroll result into view
+  box.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+// initial render
+renderStep();
+</script>
+{% endblock %}

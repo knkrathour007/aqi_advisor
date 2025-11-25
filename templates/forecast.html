@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>5-Day Forecast (Weather + AQI)</h2>
+  <div class="search-inline">
+    <input id="fcCity" placeholder="Enter city (e.g. Delhi)" />
+    <button id="fcBtn" class="small-btn">Get Forecast</button>
+  </div>
+</div>
+
+<div class="card" id="forecastContainer">
+  <div id="forecastResults" class="forecast-grid"></div>
+</div>
+
+<script>
+document.getElementById('fcBtn').addEventListener('click', async ()=>{
+  const city = document.getElementById('fcCity').value.trim();
+  if (!city) return alert('Type a city');
+  const res = await fetch(`/api/forecast?city=${encodeURIComponent(city)}`);
+  const json = await res.json();
+  if (json.error) return alert(json.error || 'Forecast unavailable');
+
+  const list = json.forecast || [];
+  const container = document.getElementById('forecastResults');
+  container.innerHTML = '';
+  list.forEach(item=>{
+    const card = document.createElement('div');
+    card.className = 'forecast-card';
+    card.innerHTML = `
+      <div class="fc-date">${item.dt.split(' ')[0]}</div>
+      <div class="fc-temp">${Math.round(item.temp)}°C</div>
+      <div class="fc-weather">${item.weather}</div>
+      <div class="fc-humidity">Humidity: ${item.humidity}%</div>
+    `;
+    container.appendChild(card);
+  });
+});
+</script>
+{% endblock %}

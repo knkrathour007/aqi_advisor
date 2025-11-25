@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Find AQI for any city</h2>
+
+  <div class="search-bar">
+    <input id="cityInput" placeholder="Type a city (e.g. Delhi)" />
+    <button id="searchBtn" class="small-btn">Search</button>
+  </div>
+</div>
+
+<div class="card map-card">
+  <div id="map" aria-label="AQI map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<script>
+const map = L.map('map').setView([22.9734,78.6569],5);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+function colorForAQI(aqi){
+  if (aqi === "N/A" || aqi === null) return '#999';
+  aqi = Number(aqi);
+  if (aqi <= 50) return '#2ecc71';
+  if (aqi <= 100) return '#f1c40f';
+  if (aqi <= 150) return '#e67e22';
+  if (aqi <= 200) return '#e74c3c';
+  return '#8e44ad';
+}
+
+async function addMarkerForCity(city){
+  try {
+    const res = await fetch(`/api/aqi?city=${encodeURIComponent(city)}`);
+    const data = await res.json();
+    if (data.error) {
+      console.warn('AQI error', data);
+      return;
+    }
+    const marker = L.circleMarker([data.lat, data.lon], {
+      radius: 12,
+      color: colorForAQI(data.aqi),
+      fillOpacity: 0.95,
+      weight: 0
+    }).addTo(map);
+
+    const popup = `<b>${data.city}</b><br>AQI: ${data.aqi}`;
+    marker.bindPopup(popup);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// initial markers passed from server
+const startCities = {{ start_cities|tojson }};
+startCities.forEach(c => addMarkerForCity(c));
+
+document.getElementById('searchBtn').addEventListener('click', async ()=>{
+  const city = document.getElementById('cityInput').value.trim();
+  if (!city) return alert('Type a city');
+  // add marker and center
+  try {
+    const res = await fetch(`/api/aqi?city=${encodeURIComponent(city)}`);
+    const data = await res.json();
+    if (data.error) return alert(data.error || 'AQI unavailable');
+    addMarkerForCity(city);
+    map.setView([data.lat, data.lon], 10);
+  } catch (e) {
+    alert('Request failed');
+  }
+});
+</script>
+{% endblock %}

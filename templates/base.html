@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AQI Advisor</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="logo">AQI Advisor</div>
+    </div>
+
+    <nav class="nav-right">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/map" class="nav-link">AQI Map</a>
+      <a href="/forecast" class="nav-link">Forecast</a>
+      <a href="/quiz" class="nav-link">Health Quiz</a>
+      <a href="/insights" class="nav-link">Insights</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <small>Made by kanak — AQI Advisor</small>
+  </footer>
+
+  <script>feather.replace()</script>
+</body>
+</html>

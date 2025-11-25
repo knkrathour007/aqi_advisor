@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .home-wrapper {
+        margin-top: 120px;
+        text-align: center;
+    }
+
+    .welcome-title {
+        font-size: 42px;
+        font-weight: 700;
+        color: #7d5ba6;
+        margin-bottom: 8px;
+    }
+
+    .welcome-subtitle {
+        font-size: 18px;
+        color: #5c4b75;
+        margin-bottom: 40px;
+    }
+
+    /* Feature Boxes (Map, Forecast, Quiz, Insights) */
+    .feature-row {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        margin-top: 30px;
+    }
+
+    .feature-box {
+        width: 180px;
+        height: 180px;
+        background: white;
+        border-radius: 22px;
+        box-shadow: 0px 8px 24px rgba(140,112,180,0.18);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #4c4366;
+        font-weight: 600;
+        transition: 0.3s ease;
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255,255,255,0.5);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-box i {
+        width: 38px;
+        height: 38px;
+        margin-bottom: 10px;
+    }
+
+    /* Different pastel background colors */
+    .box1 { background: #FCE7F3; }  /* pastel pink */
+    .box2 { background: #E0F2FE; }  /* pastel blue */
+    .box3 { background: #EDE9FE; }  /* pastel lavender */
+    .box4 { background: #FEF3C7; }  /* pastel yellow */
+
+    .feature-box:hover {
+        transform: translateY(-8px);
+        box-shadow: 0px 12px 28px rgba(140,112,180,0.28);
+    }
+
+    /* Floating animation for icons */
+    @keyframes floatIcon {
+        0% { transform: translateY(0px); opacity: 0.8; }
+        50% { transform: translateY(-10px); opacity: 1; }
+        100% { transform: translateY(0px); opacity: 0.8; }
+    }
+    .feature-box i {
+        animation: floatIcon 3s infinite ease-in-out;
+    }
+</style>
+
+<div class="home-wrapper">
+    <h1 class="welcome-title">Welcome to AQI Advisor</h1>
+    <p class="welcome-subtitle">Your calm, pastel-themed companion for clean air & better health.</p>
+
+    <div class="feature-row">
+
+        <a href="/map" class="feature-box box1">
+            <i data-feather="map"></i>
+            AQI Map
+        </a>
+
+        <a href="/forecast" class="feature-box box2">
+            <i data-feather="cloud"></i>
+            Forecast
+        </a>
+
+        <a href="/quiz" class="feature-box box3">
+            <i data-feather="activity"></i>
+            Health Quiz
+        </a>
+
+        <a href="/insights" class="feature-box box4">
+            <i data-feather="bar-chart-2"></i>
+            Insights
+        </a>
+
+    </div>
+</div>
+
+<script>
+    feather.replace();
+</script>
+
+{% endblock %}

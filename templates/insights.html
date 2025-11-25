@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>AQI Insights</h2>
+  <p class="muted">Get a short insight for any city — health tips and current AQI.</p>
+
+  <div class="search-inline">
+    <input id="insCity" placeholder="Enter city name..." />
+    <button id="insBtn" class="small-btn">Check</button>
+  </div>
+
+  <div id="insightBox" class="insight-box" style="display:none"></div>
+</div>
+
+<script>
+document.getElementById('insBtn').addEventListener('click', async ()=>{
+  const city = document.getElementById('insCity').value.trim();
+  if (!city) return alert('Type a city');
+  const res = await fetch(`/api/aqi?city=${encodeURIComponent(city)}`);
+  const j = await res.json();
+  if (j.error) return alert(j.error || 'AQI unavailable');
+
+  const box = document.getElementById('insightBox');
+  box.style.display = 'block';
+  let color = 'green';
+  const aqi = j.aqi;
+  if (aqi === "N/A" || aqi === null) color = 'gray';
+  else {
+    const v = Number(aqi);
+    if (v <= 50) color = 'green';
+    else if (v <= 100) color = 'gold';
+    else if (v <= 150) color = 'orange';
+    else if (v <= 200) color = 'red';
+    else color = 'purple';
+  }
+
+  box.innerHTML = `
+    <div class="ins-row">
+      <div class="ins-left"><strong>${j.city}</strong><br>Lat ${Number(j.lat).toFixed(3)}, Lon ${Number(j.lon).toFixed(3)}</div>
+      <div class="ins-right"><div class="aqi-pill" style="background:${color}">${j.aqi}</div></div>
+    </div>
+    <div class="ins-advice">
+      <h4>Quick advice</h4>
+      <ul>
+        <li>Limit outdoor exposure when AQI is high.</li>
+        <li>Use masks and keep windows closed when needed.</li>
+      </ul>
+    </div>
+  `;
+});
+</script>
+{% endblock %}

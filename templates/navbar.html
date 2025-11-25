@@ -1,0 +1,10 @@
+<nav class="navbar">
+  <div class="logo"><a href="/">AQI Advisor</a></div>
+  <ul class="navlinks">
+    <li><a href="/" class="{% if request.path=='/' %}active{% endif %}">Home</a></li>
+    <li><a href="/map" class="{% if request.path=='/map' %}active{% endif %}">AQI Map</a></li>
+    <li><a href="/forecast" class="{% if request.path=='/forecast' %}active{% endif %}">Forecast</a></li>
+    <li><a href="/insights" class="{% if request.path=='/insights' %}active{% endif %}">Insights</a></li>
+    <li><a href="/quiz" class="{% if request.path=='/quiz' %}active{% endif %}">Health Quiz</a></li>
+  </ul>
+</nav>
